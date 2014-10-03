@@ -1,0 +1,165 @@
+alias nps='npm start'
+alias npt='npm test'
+alias npp='npm run protractor'
+
+alias emacs='em'
+function f() { 
+         ( find ./ -name "*$1*" ) 
+}
+
+function ff() { ( find ./ -name *$1* | xargs grep $2 ) }
+function lm() { ( find $1 -prune -printf '%m\n')}
+function find_cp() { (find ./ -name $1 | cpio -pd $2) }
+function topp() { (top -pid `pgrep $1 | tr "\\n" "," | sed 's/,$//'`) }
+
+function hg() { (history | grep $1) }
+# find 
+function fas() { ( find ./ -name "*.as" | xargs grep $1 ) }
+function frb() { ( find ./ -name "*.rb" | xargs grep $1 ) }
+function fyml() { ( find ./ -name "*.yaml" | xargs grep $1 ) }
+
+alias go='source ~/bin/go.sh'
+alias clr='find ./ -name "*~" -delete -o -name "*#*" -delete'
+function ppjson() { (cat $1 | python -mjson.tool) }
+alias erdos="ssh -X woot@erdos.local"
+
+#buildaroo
+alias woob="builderoo.rb -compile -config debug -web"
+function wm_build() { (builderoo.rb -compile -config debug=enabled,server=$1) }
+
+alias dbuild='builderoo.rb -compile -config debug=enabled,server=verdos,pilot_school=demo'
+alias vabuild='builderoo.rb -compile -config debug=enabled,server=prod2_ec2,pilot_school=va'
+alias dvabuild='builderoo.rb -compile -config debug=enabled,server=verdos2,pilot_school=va'
+alias dihadbuild='builderoo.rb -compile -config debug=enabled,server=verdos2,pilot_school=ihad'
+alias ihadbuild='builderoo.rb -compile -config debug=enabled,server=prod2_ec2,pilot_school=ihad'
+
+alias roob="builderoo.rb -compile -config debug=enabled,server=euler"
+alias roop="builderoo.rb -compile -config test -package -install"
+# ios simulator
+alias psim='open /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/Applications/iPhone\ Simulator.app'
+# rvm
+alias mrvm='rvm use @skelly'
+alias drvm='rvm use default'
+
+# zoot
+alias tz='bin/zoot play -f demo/demo.zoot' 
+
+# git
+function new_branch() { (git checkout -b $1; git push origin $1) } 
+function gcap() { (git commit -m$1 -a; git push) }
+
+#emacs
+function emf() { ( em `find . -name $1`)}
+
+alias rtags='cd ~/dev/nimbee/edu/ruby;rm -f TAGS;ctags -e -a -R --languages=Ruby'
+alias ktags='cd ~/dev/kudu;rm TAGS;ctags -e -a -R --languages=Ruby,Flex,actionscript,yaml,xml,css,markdown,C++,JavaScript,HTML,SQL,erb,haml,scss'
+alias ztags='cd ~/dev/zapt;rm TAGS;ctags -e -a -R --languages=Ruby,Flex,actionscript,yaml,xml,css,markdown,C++,JavaScript,HTML,SQL,erb,haml,scss'
+alias ptags='cd ~/pro/nimbee;ctags -e -a -R --languages=Ruby,Flex,actionscript,yaml,xml,sql'
+alias bitags='cd ~/dev/bi_testing_app;ctags --exclude='orig/production/assets/*.js' --exclude='lib/public/js/third_party/*.js' --exclude='lib/etc/*.js' --exclude='orig/production/admin/*.js' -e -a -R --languages=Ruby,Flex,actionscript,yaml,xml,css,markdown,JavaScript,HTML,SQL,erb,haml,scss,php,jst'
+
+#bash
+alias lsdir='ls -ltr | grep ^d'
+
+#wootcms
+function echo_and_run() { echo "$@" ; "$@" ; }
+alias wm='cd ~/dev/nimbee/edu/as/app/woot_math'
+
+alias fcompile='wm; echo_and_run wootcms.rb compile -d -u sean -v -b cms -f modules/fractions_intro.yaml'
+alias scompile='wm; echo_and_run wootcms.rb compile -d -u sean -v -b cms -f modules/sean.yaml'
+
+alias swatch='wm; echo_and_run wootcms.rb watch -u sean -b cms -f modules/sean.yaml'
+
+alias stree='wm; echo_and_run wootcms.rb tree -u sean -i sean'
+
+alias ftree='wm; echo_and_run wootcms.rb tree -u sean -i fractions'
+alias frecord='wm; echo_and_run wootcms.rb record -u sean -i fractions -a covering_fc'
+
+function srecord() { (wootcms.rb record -u sean -p $1 --select-keys=is_recordable --select-values='*' --filter-keys="media_type" --filter-values="audio") }
+function srecorda() { (wootcms.rb record -u sean -p $1 --select-keys=is_recordable --select-values='*') }
+function krecord() { (wootcms.rb record -u krista -p $1 --select-keys=is_recordable --select-values='*' --filter-keys="media_type" --filter-values="audio") }
+
+# copy current prompt line to clipboard
+bind '"\C-]":"\C-e\C-u pbcopy <<"EOF"\n\C-y\nEOF\n"'
+# command output to clipboard
+function ccb() { ($@ | pbcopy) }
+
+alias sba='source ~/.bash_aliases'
+
+#wootmath mongo
+alias wmongo='mongo ds041208.mongolab.com:41208/wootmath -u wootdev -p jW7FiCpmiQ0E'
+alias wmongo_test='mongo ds047458.mongolab.com:47458/wootmath_test  -u wootdev -p jW7FiCpmiQ0E'
+
+#wootmath rds
+
+alias wmpdb='mysql -h 10.0.1.3 --port 33333 -u wmadmin --password=31720376d377'
+alias wmddb='mysql -h 10.0.1.3 -P 3306 -u root --password=wootmathisfun'
+
+alias wmd2='ssh -i ~/credentials/wootmath_ec2_hosts.pem ubuntu@54.215.205.171'
+alias wmd6='ssh -i ~/credentials/wootmath_ec2_hosts.pem ubuntu@54.215.175.49'
+
+function scpec2() { ( scp -i ~/credentials/wootmath_ec2_hosts.pem $1 ubuntu@54.215.205.171:.) }
+alias rtest='rake test TESTOPTS="-v"'
+alias verdos='ssh vagrant@10.0.10.161'
+alias verdos2='ssh vagrant@10.0.10.164'
+
+alias skelly='ssh vagrant@10.0.10.144'
+alias milne='ssh vagrant@10.0.10.143'
+alias tom='ssh vagrant@10.0.10.140'
+alias qa='ssh vagrant@10.0.10.141'
+alias jward='ssh vagrant@10.0.10.145'
+
+alias rzapt='zapt runtask -r'
+alias devprod='ssh -i ~/credentials/wootmath_ec2_hosts.pem ubuntu@54.193.33.96'
+
+alias prod1='ssh -i ~/credentials/wootmath_ec2_hosts.pem ubuntu@54.202.15.113'
+alias prod2='ssh -i ~/credentials/wootmath_ec2_hosts.pem ubuntu@54.214.205.36'
+alias prod3='ssh -i ~/credentials/wootmath_ec2_hosts.pem ubuntu@54.212.223.222'
+alias prod4='ssh -i ~/credentials/wootmath_ec2_hosts.pem ubuntu@54.188.137.117'
+
+alias nprod1='ssh -i ~/credentials/wootmath_ec2_hosts.pem ubuntu@54.203.159.207'
+alias nprod2='ssh -i ~/credentials/wootmath_ec2_hosts.pem ubuntu@54.185.10.130'
+alias nprod3='ssh -i ~/credentials/wootmath_ec2_hosts.pem ubuntu@54.202.113.78'
+
+alias bailey='echo wbailey2@schools.nyc.gov'
+alias mongo_tunnel='ssh -i ~/credentials/wootmath_ec2_hosts.pem -L 27017:10.219.5.171:27017 ubuntu@54.202.15.113'
+alias pmongo='mongo -host 10.0.1.3 -port 22222'
+alias dmongo='mongo -host 10.0.1.3'
+alias tmongo='mongo ds047458.mongolab.com:47458/wootmath_test -u wootdev -p jW7FiCpmiQ0E'
+
+alias bbr='git checkout milne_2013_12_13'
+alias tbr='git checkout tfischaber_2013_12_13'
+alias sbr='git checkout skelly_2013_12_12'
+alias jbr='git checkout jward_2013_12_13'
+alias qbr='git checkout qa'
+alias rbr='git checkout release'
+alias dump_wootmathdev='mongodump -h ds053438.mongolab.com:53438 -d wootmathdev -u wootdev -p jW7FiCpmiQ0E -o mongolabs_wootmathdev'
+
+alias cmsc='cd ~/dev/nimbee/edu/as/app/woot_math; wootcms compile -u sean -f cms/modules/users/pa -d'
+alias cmst='cd ~/dev/nimbee/edu/as/app/woot_math; wootcms tree -t sean'
+alias cmsr='cd ~/dev/nimbee/edu/as/app/woot_math; wootcms record -u sean'
+alias cwm='cd ~/dev/nimbee/edu/as/app/woot_math; wootcms compile -u krista -t sean -f cms/modules/wootmath_fractions -a -d'
+alias cwms='cd ~/dev/nimbee/edu/as/app/woot_math; wootcms compile -u krista -t sean -f cms/modules/users/sean.yaml -a -d'
+alias cmspa='cd ~/dev/nimbee/edu/as/app/woot_math; wootcms problem-audio -u sean -r'
+alias wb='wootbank generate -f cms/lessons -n 50'
+alias wb4='wootbank generate -f cms/lessons/fractions/lesson04 -n 50'
+alias dbn='wootbank generate -f cms/lessons/fractions/lesson15 -n 50;cwm'
+alias py='ipython -pylab'
+alias nsf_pa='cd ~/dev/nimbee/edu/as/app/woot_math; wootcms compile -u krista -t sean -f cms/modules/users/sean.yaml -d --filter-missing-takes'
+
+alias logmon='zapt runtask -r tail -t log_mon.rb'
+alias slogmon='zapt runtask -r tail -t log_mon.rb -c ../common/cluster_defs/skelly.yaml'
+alias wmcodes='mongo ds033757.mongolab.com:33757/wootmathcodes -u wmadmin -p xUFbLMjwpYO1'
+alias jr='rvm use jruby'
+alias nr='rvm use default'
+
+alias dc='cd ~/dev/nimbee/edu/as/app/woot_math; wootcms compile -d -u sean -t sean -f cms/modules/users/sean.yaml -a'
+alias dt='wootcms tree -t sean'
+alias db='cd ~/dev/nimbee/edu/as/app/woot_math; wootbank generate -b cms -f cms/lessons/fractions/lesson30 -n 50'
+alias chkpdb='mysqlcheck -h 10.0.1.3 --port 33333 -u wmadmin --password=31720376d377 wootmath'
+alias mdu='sudo du -h . -d 1'
+
+# build an index with exclusions and then run ctags
+function itags() { 
+         (cd ~/dev/nimbee; find -E . -type f -regex ".*\.(js|as|html|rb|scss|css|py|yaml|erb|sql)$" | grep -v -E "(as/lib|unwrong|node_modules|wm_roster|bootstrap)" > tags_index)
+         (cd ~/dev/nimbee; ctags -e -L tags_index)
+}

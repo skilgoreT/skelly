@@ -1,0 +1,9 @@
+#!/usr/bin/env ruby
+cmd = "#{ARGV[0]} | sed -n #{ARGV[1]}p"
+c = `#{cmd}`.chomp
+puts "Copied to clipboard: #{c}"
+`echo #{c} | pbcopy`
+
+
+
+

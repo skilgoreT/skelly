@@ -1,0 +1,232 @@
+#!/usr/bin/env ruby
+
+#[0, 1, 4, 5, 7].each do |attr|
+#  puts '----------------------------------------------------------------'
+#  puts "ESC[#{attr};Foreground;Background"
+#  30.upto(37) do |fg|
+#    40.upto(47) do |bg|
+#      print "\033[#{attr};#{fg};#{bg}m #{fg};#{bg}  "
+#    end
+#  puts "\033[0m"
+#  end
+#end
+require 'open3'
+
+script = $0
+
+white = "\033[1;37m"
+red = "\033[1;31m"
+blue = "\033[1;34m"
+nocolor = "\033[0m"
+
+is_glob = STDIN.tty?
+
+trap("INT") { print "\nff interrupted, exiting...\n"; exit }
+
+# Heuristic determination of a "binary" file
+def is_binary(name)
+  ascii = total = 0
+  bytes = File.open(name, "rb") { |io| io.read(1024) }
+  return false if (bytes==nil)
+  bytes.each_byte  do |c|
+    total += 1;
+    ascii +=1 if c >= 128  or c == 0
+  end
+  ascii.to_f / total.to_f > 0.33
+end
+
+# Use "magic" to determine if the first arg is intended as a file ending
+args = ARGV.clone()
+test_suffix = ARGV[0]
+if (`find . -name "*.#{test_suffix}" | wc -l`.to_i > 1) then
+  args[0] = args[0]+"$"
+  if (args[1]!='--') then args.insert(1, '--') end
+
+  # puts a warning note if this isn't a common suffix
+  puts "NOTE: assumed 1st argument is a suffix, i.e. #{args.to_s}" unless (['as', 'js', 'java', 'xml', 'c', 'rb', 'css', 'scss', 'soy', 'hx', 'yaml'].include?(test_suffix))
+end
+
+# Default options
+casein = true;
+before = 0
+after = 0
+unique = false
+binary = false
+paths = false
+tildes = false
+
+
+rg = [[],[],[]]
+idx = is_glob ? 0 : 1 # if fileset in stdin, skip name matching
+skip = false
+@next_args = nil
+@next_files = []
+args.each_index { |i|
+  arg = args[i]
+  if (skip) then skip = false
+  elsif (@next_args!=nil) then
+    @next_args = @next_args + ' ' + arg
+  elsif (arg=='..') then @next_args = ' '
+  elsif (arg.match(/^\-/)) then
+    idx = idx+1 if (arg=='--')
+    if (arg=='-e') then casein = false end
+    if (arg=='-u') then unique = true end
+    if (arg=='-n') then binary = true end
+    if (arg=='-p') then paths = true end
+    if (arg=='-t') then tildes = true end
+    if (arg=='-b') then before = args[i+1].to_i; skip = true end
+    if (arg=='-a') then after = args[i+1].to_i; skip = true end
+  else
+    rg[idx] = [] if (rg[idx]==nil)
+    rg[idx].push(arg)
+  end
+}
+
+$invert = {}
+def build_rx(str, c)
+  return Regexp.new(str, c) if (str=='~$')
+  inv = str.match(/^~/)!=nil
+  s = str.sub(/^~/, '')
+  rx = Regexp.new(s, c)
+  $invert[rx] = inv
+  return rx
+end
+
+def match_rx(rx, str)
+  return ($invert[rx] ? !rx.match(str) : rx.match(str))
+end
+
+$reported = {}
+def my_puts(f, str, ignored)
+  if (@next_args!=nil) then
+    if (@next_files.index(f)==nil) then
+      @next_files.push(f)
+    end
+  elsif ignored
+    if (!$reported[f]) then
+      $reported[f] = true
+      puts " -- ignored matching file #{f}"
+    end
+  else
+    puts str
+  end
+end
+
+name_rg = rg[0].map { |i| build_rx(i, casein) }
+line_rg = rg[1].map { |i| build_rx(i, casein) }
+set_rg = rg[2].map { |i| build_rx(i, casein) }
+
+#puts "name_rg: "+name_rg.to_s
+#puts "line_rg: "+line_rg.to_s
+
+fileset = (is_glob) ? Dir.glob('**/*') : $stdin.read.split("\n")
+
+filters = File.read(ENV['HOME']+"/.ffignores").split("\n").map { |l| Regexp.new(l) } rescue []
+
+fileset.each { |f|
+  ignored = false
+
+  filters.each { |r|
+    ignored=true if r.match(f)
+  }
+  #if filtered then
+  #  puts " -- Ignoring: #{f}"
+  #  next
+  #end
+
+  if (!File.directory?(f) && File.exist?(f) &&
+      (tildes || !f.match(/~$/))) then
+    fm = true
+    name_rg.each{ |rx|
+      if (paths) then
+        fm = fm && match_rx(rx, f)
+      else
+        fm = fm && match_rx(rx, f.sub(/.*\//, ''))
+      end
+    }
+    if (fm && line_rg.length>0) then
+      if (!binary && is_binary(f)) then next end
+      lines = File.new(f).readlines()
+      printed_to = 0
+      lm = false
+      lines.each_index{ |i|
+        if (i<printed_to) then next end
+        line = lines[i]
+        lm = true
+        line_rg.each{
+          # Binary input can cause .match to throw, hence the rescue clause
+          |rx| lm = lm && match_rx(rx, line) rescue lm=false
+        }
+        if (lm && unique && set_rg.length==0) then break end
+        if (lm && before==0 && after==0) then
+          my_puts(f, f+":"+i.to_s+":"+line, ignored)
+          printed_to = i
+        elsif (lm) then
+          s = [0, i-before].max;
+          e = [i+after, lines.length-1].min
+          fmsg = f+":"+s.to_s+" - "+e.to_s
+          set = []
+          s.upto(e) { |j|
+            set.push(">"+lines[j].to_s)
+          }
+          printed_to = e
+          if (set_rg.length==0) then
+            if (lm && unique) then break end
+            my_puts f, fmsg+"\n"+set.join(""), ignored
+          else
+            sm = true
+            set_str = set.join(" ").to_s
+            set_rg.each{ |rx| sm = sm && match_rx(rx, set_str) }
+            if (sm) then
+              if (lm && unique) then break end
+              my_puts f, fmsg+"\n"+set.join(""), ignored
+            end
+          end
+        end
+      }
+      if (unique && lm) then puts f end
+    elsif (fm) then
+      my_puts f, f, ignored
+    end
+  end
+}
+
+if (@next_args!=nil) then
+  stdin, stdout, stderr = Open3.popen3(script+@next_args)
+  stdin.puts @next_files
+  stdin.close
+  while (o = stdout.gets)
+    puts o
+  end
+end
+
+#foreach $a (@ARGV) {
+#  if ($a =~ /^\-/) {
+#    if ($a eq "-E") { # -E: case sensitive (Exact case)
+#      $casein = "";
+#    }
+#  } elsif (length($filetype)==0) {
+#    $filetype = $a;
+#  } else {
+#    $search{$a} = 1;
+#  }
+#}
+##print "ft = $filetype\nsearch = $search\ncasein = $casein\n";
+# 
+#if (keys %search > 1) {
+#  $cmd = "find . -print0 -name \"*.$filetype\" | grep -v \.svn | ";
+#  $first = 1;
+#  foreach $key (keys %search) {
+#    if ($search{$key}) {
+#      if ($first==1) {
+#        $first = 0;
+#        $cmd .= "xargs grep -n $casein \"$key\"";
+#      } else {
+#        $cmd .= "| grep $casein \":.*$key\"";
+#      }
+#    }
+#  }
+#  system($cmd);
+#} else {
+#  system("find . | grep -v \.svn | grep $casein \"$filetype\"");
+#}

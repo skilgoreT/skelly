@@ -1,0 +1,80 @@
+#! ruby
+
+# Copyright (c) 2007 Aemon Cannon, aemoncannon -at- gmail -dot- com
+#
+# This file is part of flyparse-mode
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3 of the License, or
+# (at your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+require 'fileutils'
+
+ANTLR_OPTIONS = [] # -trace
+JAVAC_OPTIONS = [] # -g (for debugging)
+
+PARSER_TARGETS = ["src/emacs/flyparse/as3/AS3Lexer.java", "src/emacs/flyparse/as3/AS3Parser.java"]
+PARSER_TARGETS.each do |ea|
+  file ea => "AS3.g" do
+    puts ENV["CLASSPATH"]
+    sh "java org.antlr.Tool #{ANTLR_OPTIONS.join(" ")} AS3.g"
+    mv ["AS3Lexer.java", "AS3Parser.java"], "src/emacs/flyparse/as3", :force => true
+  end
+end
+
+
+AS3_TARGET = "../bin/.as3"
+DRIVER_SOURCE = ["../src/emacs/flyparse/FileWalker.java", "src/emacs/flyparse/as3/AS3Driver.java"]
+FLYPARSE_CORE_SOURCE = FileList["../src/**/*.java"]
+file AS3_TARGET => PARSER_TARGETS + DRIVER_SOURCE + FLYPARSE_CORE_SOURCE do
+  sh "javac #{JAVAC_OPTIONS.join(" ")} #{(PARSER_TARGETS + DRIVER_SOURCE).join(" ")} -d ../bin"
+  touch AS3_TARGET
+end
+
+
+task :test => [] do
+  require '../test_helper.rb'
+  run_tests('./test',
+            lambda{|path| (path =~ /\.as$/ and not path =~ /\.svn/) },
+            lambda{|path| "java emacs.flyparse.as3.AS3Driver -f #{path}" },
+            lambda{|line| line =~ /mismatched input .*? expecting SEMI$/} # <--- ignore these, they're not important.
+            )
+end
+
+
+task :profile => [] do
+  sh "java -javaagent:c:/java_profile/profile/profile.jar emacs.flyparse.as3.AS3Driver ./test/input.as"
+end
+
+
+task :debug => [] do
+  puts "\n\nExample jdb usage:"
+  puts "------------------------"
+  puts "stop in emacs.flyparse.as3.AS3Driver.main"
+  puts "run emacs.flyparse.as3.AS3Driver.main -l test\n\n"
+  sh "jdb -sourcepath src"
+end
+
+task :default => AS3_TARGET
+
+task :parser => PARSER_TARGETS
+
+task :clean => [] do
+  rm_f AS3_TARGET
+  rm_f PARSER_TARGETS
+end
+
+
+
+
+
+

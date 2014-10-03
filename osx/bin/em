@@ -1,0 +1,10 @@
+#!/bin/sh
+if [ -z "$(pgrep Emacs)" ]; then
+  # Emacs is not running
+  /Applications/Emacs.app/Contents/MacOS/Emacs "$@" & 
+  (sleep 1; osascript -e 'tell application "Emacs" to activate' ) &
+else
+  # Emacs is running
+  osascript -e 'tell application "Emacs" to activate' 
+  emacsclient -n -q "$@"
+fi

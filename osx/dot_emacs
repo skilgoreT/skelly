@@ -1,0 +1,208 @@
+(let* ((my-lisp-dir "~/lisp/")
+       (default-directory my-lisp-dir)
+       (orig-load-path load-path))
+  (setq load-path (cons my-lisp-dir nil))
+  (normal-top-level-add-subdirs-to-load-path)
+  (nconc load-path orig-load-path))
+
+(require 'color-theme)
+(eval-after-load "color-theme"
+  '(progn
+     (color-theme-initialize)
+     (color-theme-hober)))
+
+ (require 'yaml-mode)
+    (add-to-list 'auto-mode-alist '("\\.yml$" . yaml-mode))
+
+ (require 'as3-mode)
+   (add-to-list 'auto-mode-alist '("\\.as$" . as3-mode))
+
+; Two spaces no tabs
+(setq-default tab-width 2)
+(setq tab-width 2)
+(setq-default indent-tabs-mode nil)
+(defvaralias 'c-basic-offset 'tab-width)
+(defvaralias 'cperl-indent-level 'tab-width)
+
+; 2 spaces javascript mode
+(setq js-indent-level 2)
+
+; TAGS
+(setq tags-table-list
+    '("~/dev/nimbee" "~/dev/kudu" "~/dev/zapt"))
+
+;; (setq tags-table-list
+;;       '("~/dev/bi_testing_app"))
+
+; refresh automatically
+(global-auto-revert-mode t)
+
+(global-set-key (kbd "C-x C-b") 'electric-buffer-list)
+(global-set-key (kbd "C-z") 'undo)
+(global-set-key (kbd "C-n") 'goto-line)
+(global-set-key [(f4)] 'kill-buffer)
+(global-set-key [(f3)] 'comment-or-uncomment-region)
+(global-set-key (kbd "C-x C-c") 'kill-emacs)
+(global-set-key (kbd "C-i") 'indent-region)
+(global-set-key [(f1)] 'bookmark-jump)
+(global-set-key [(f2)] 'bookmark-set)
+
+(setq
+   backup-by-copying t      ; don't clobber symlinks
+   backup-directory-alist
+    '(("." . "~/.saves"))   ; don't litter my fs tree
+   delete-old-versions t
+   kept-new-versions 6
+   kept-old-versions 2
+   version-control t)       ; use versioned backups
+
+(setq mouse-wheel-scroll-amount '(5 ((shift) . 5) ((control) . nil)))
+(setq mouse-wheel-progressive-speed nil)
+
+(require 'haml-mode)
+
+(require 'scss-mode)
+    (add-to-list 'auto-mode-alist '("\\.scss$" . scss-mode))
+
+(setq scss-compile-at-save nil)
+(setq large-file-warning-threshold nil)
+
+(server-start)
+
+(when (>= emacs-major-version 24)
+  (require 'package)
+  (setq package-archives '(("gnu" . "http://elpa.gnu.org/packages/")
+                         ("marmalade" . "http://marmalade-repo.org/packages/")
+                         ("melpa" . "http://melpa.milkbox.net/packages/")))
+ 
+  (package-initialize)
+
+  ; (load-theme 'milne-deep-blue t)
+
+  (tool-bar-mode -1)
+
+  (set-face-attribute 'default nil :font  "-*-Monaco-medium-normal-normal-*-16-*-*-*-c-*-iso10646-1")
+  (add-to-list 'default-frame-alist '(width . 160))
+  (add-to-list 'default-frame-alist '(height . 48))
+
+  (add-hook 'after-make-frame-functions
+            '(lambda (frame)
+               (if frame (select-frame frame))
+               (set-frame-position (selected-frame) 350 0)
+               ))
+
+  (set-frame-position (selected-frame) 300 0))
+
+
+(require 'smart-tab)
+(require 'hippie-exp)
+
+(global-smart-tab-mode 1)
+(setq smart-tab-using-hippie-expand t)
+
+;; let hippie-expand support ctags
+;; from http://emacswiki.org/emacs/HippieExpand
+(defun tags-complete-tag (string predicate what)
+  (save-excursion
+    ;; If we need to ask for the tag table, allow that.
+    (if (eq what t)
+        (all-completions string (tags-completion-table) predicate)
+      (try-completion string (tags-completion-table) predicate))))
+
+;; This is a simple function to return the point at the beginning of the symbol to be completed
+(defun he-tag-beg ()
+  (let ((p
+         (save-excursion
+           (backward-word 1)
+           (point))))
+    p))
+
+;; The actual expansion function
+(defun try-expand-tag (old)
+  ;; old is true if we have already attempted an expansion
+  (unless old
+    ;; he-init-string is used to capture the string we are trying to complete
+    (he-init-string (he-tag-beg) (point))
+    ;; he-expand list is the list of possible expansions
+    (setq he-expand-list (sort
+                          (all-completions he-search-string 'tags-complete-tag) 'string-lessp)))
+  ;; now we go through the list, looking for an expansion that isn't in the table of previously
+  ;; tried expansions
+  (while (and he-expand-list
+              (he-string-member (car he-expand-list) he-tried-table))
+    (setq he-expand-list (cdr he-expand-list)))
+  ;; if we didn't have any expansions left, reset the expansion list
+  (if (null he-expand-list)
+      (progn
+        (when old (he-reset-string))
+        ())
+    ;; otherwise offer the expansion at the head of the list
+    (he-substitute-string (car he-expand-list))
+    ;; and put that expansion into the tried expansions list
+    (setq he-expand-list (cdr he-expand-list))
+    t))
+
+(setq hippie-expand-try-functions-list
+      '(
+       try-expand-all-abbrevs
+       try-expand-list
+       ; try-expand-line
+       try-expand-dabbrev
+       try-expand-dabbrev-from-kill
+       try-expand-tag
+       try-expand-dabbrev-all-buffers
+       try-complete-file-name-partially 
+       try-complete-file-name
+       try-complete-lisp-symbol-partially
+       try-complete-lisp-symbol
+))
+
+(setq
+   backup-by-copying t      ; don't clobber symlinks
+   backup-directory-alist
+    '(("." . "~/.saves"))    ; don't litter my fs tree
+   delete-old-versions t
+   kept-new-versions 6
+   kept-old-versions 2
+   version-control t)       ; use versioned backups
+
+(setq-default indent-tabs-mode nil)
+(setq-default standard-indent 2)
+(setq-default tab-width 2)
+(setq-default c-basic-offset 2)
+(setq-default tab-stop-list (number-sequence 2 100 2))
+
+;; autosave madness
+;; Put autosave files (ie #foo#) and backup files (ie foo~) in ~/.emacs.d/.
+(custom-set-variables
+  '(auto-save-file-name-transforms '((".*" "~/.emacs.d/autosaves/\\1" t)))
+  '(backup-directory-alist '((".*" . "~/.emacs.d/backups/"))))
+
+;; create the autosave dir if necessary, since emacs won't.
+(make-directory "~/.emacs.d/autosaves/" t)
+
+(fset 'load-nimbee
+   [escape ?x ?v ?i ?s ?i ?t tab return ?\C-a ?\C-k ?~ ?/ ?d ?e ?v ?/ ?n ?i ?m ?b ?e ?e ?/ ?T ?A ?G ?S return])
+
+(fset 'load-bi
+   [escape ?x ?v ?i ?s ?i tab ?t tab return ?d ?e ?v ?/ ?b ?i tab ?T ?A tab return])
+
+(setq kill-buffer-query-functions
+  (remq 'process-kill-buffer-query-function
+         kill-buffer-query-functions))
+
+(add-hook 'js-mode-hook
+ (lambda ()
+ (define-key javascript-mode-map (kbd "M-.") 'find-tag)
+ ;; (define-key keymap [(meta ?.)] #'find-tag)
+ )
+)
+
+; Highlight the call to ipdb
+; src http://pedrokroger.com/2010/07/configuring-emacs-as-a-python-ide-2/
+(defun annotate-pdb ()
+  (interactive)
+  (highlight-lines-matching-regexp "import ipdb")
+  (highlight-lines-matching-regexp "ipdb.set_trace()"))
+(add-hook 'python-mode-hook 'annotate-pdb)
+
