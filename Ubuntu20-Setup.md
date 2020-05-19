@@ -12,3 +12,7 @@ dconf write /org/gnome/desktop/wm/preferences/num-workspaces 4
 sudo apt install gnome-tweak-toolc
 ```
 Use gnome-tweak to disable animations
+
+Grabbed beta channel VSCode for preference sync
+
+https://code.visualstudio.com/insiders/ 
