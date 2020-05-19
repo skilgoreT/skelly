@@ -17,6 +17,7 @@ Grabbed beta channel VSCode for preference sync
 
 https://code.visualstudio.com/insiders/ 
 
+### Developer Setup
 
 Install node using n
 ```
