@@ -1,4 +1,4 @@
-skelly_dev
+skelly
 ==========
 
 Development environment essentials
