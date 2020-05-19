@@ -16,3 +16,13 @@ Use gnome-tweak to disable animations
 Grabbed beta channel VSCode for preference sync
 
 https://code.visualstudio.com/insiders/ 
+
+
+Install node using n
+```
+sudo apt-get install npm
+sudo npm install -g n
+n 12
+n 10
+n 8
+```
