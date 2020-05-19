@@ -12,7 +12,10 @@ dconf write /org/gnome/desktop/wm/preferences/num-workspaces 4
 sudo apt install gnome-tweak-toolc
 ```
 Use gnome-tweak to disable animations
-
+```
+# workspace switching on both monitors 
+gsettings set org.gnome.mutter workspaces-only-on-primary false
+```
 ### Developer Setup
 
 Grabbed beta channel VSCode for preference sync
