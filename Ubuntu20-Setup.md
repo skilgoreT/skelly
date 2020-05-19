@@ -13,11 +13,12 @@ sudo apt install gnome-tweak-toolc
 ```
 Use gnome-tweak to disable animations
 
+### Developer Setup
+
 Grabbed beta channel VSCode for preference sync
 
 https://code.visualstudio.com/insiders/ 
 
-### Developer Setup
 
 Install node using n
 ```
