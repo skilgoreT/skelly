@@ -59,9 +59,12 @@ wootdevsetup.rb setup -b
 ```
 
 #### Haxe
+Install haxe from this URL - https://haxe.org/download/version/4.0.0-preview.1/
 ```
-sudo scp -r woot@10.0.1.5:/opt/haxe-4.0.0-rc1-linux64 /opt
 sudo ln -snf /opt/haxe-4.0.0-rc1-linux64 /opt/haxe
 # add /opt/haxe to your path
+# need the below for haxelib
+sudo apt install neko
+mkdir ~/haxelib && haxelib setup ~/haxelib
 ```
 
