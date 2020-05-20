@@ -42,7 +42,7 @@ gpg --keyserver hkp://pool.sks-keyservers.net --recv-keys 409B6B1796C275462A1703
 \curl -sSL https://get.rvm.io | bash
 rvm install 2.4.1
 ```
-Git
+#### Git
 ```
 # in ~/dev
 git clone git@github.com:hipponot/nimbee.git
@@ -50,9 +50,12 @@ git clone git@github.com:hipponot/vagrant.git
 git clone git@github.com:hipponot/kudu.git
 git clone git@github.com:hipponot/zapt.git
 ```
+#### Build Gems
 wootdevsetup.rb
 ```
 cd ~/dev/nimbee/build_tools
 wootdevsetup.rb setup -b
 ```
+
+####Haxe
 
