@@ -1,4 +1,4 @@
 skelly
 ==========
 
-Development environment essentials
+Development Environment Essentials
