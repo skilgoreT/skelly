@@ -52,7 +52,7 @@ git clone git@github.com:hipponot/zapt.git
 ```
 wootdevsetup.rb
 ```
-cd ~/dev/nimbee/build_)tools
+cd ~/dev/nimbee/build_tools
 wootdevsetup.rb setup -b
 ```
 
