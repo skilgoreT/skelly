@@ -22,6 +22,7 @@ Grabbed beta channel VSCode for preference sync
 
 https://code.visualstudio.com/insiders/ 
 
+#### Node
 
 Install node using n
 ```
@@ -32,11 +33,11 @@ n 10
 n 8
 ```
 
-Install yarn
+#### yarn
 
 ``` npm install -g yarn```
 
-RVM install
+#### RVM
 ```
 gpg --keyserver hkp://pool.sks-keyservers.net --recv-keys 409B6B1796C275462A1703113804BB82D39DC0E3 7D2BAF1CF37B13E2069D6956105BD0E739499BDB
 \curl -sSL https://get.rvm.io | bash
@@ -58,4 +59,9 @@ wootdevsetup.rb setup -b
 ```
 
 ####Haxe
+```
+sudo scp -r woot@10.0.1.5:/opt/haxe-4.0.0-rc1-linux64 /opt
+sudo ln -snf /opt/haxe-4.0.0-rc1-linux64 /opt/haxe
+# add /opt/haxe to your path
+```
 
