@@ -18,7 +18,9 @@ gsettings set org.gnome.mutter workspaces-only-on-primary false
 ```
 
 Use dconf Editor to change dash-to-dock click-action to Launch
-
+```
+sudo apt-get install -y dconf-editor
+```
 ### Developer Setup
 
 Grabbed beta channel VSCode for preference sync
