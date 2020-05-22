@@ -68,3 +68,9 @@ sudo apt install neko
 mkdir ~/haxelib && haxelib setup ~/haxelib
 ```
 
+#### Mounting the share
+```
+sudo apt install nfs-common
+mkdir ~/shared
+sudo mount -o resvport -t nfs -o proto=tcp,port=2049 10.0.1.20:/volume2/shared ~/shared
+```
