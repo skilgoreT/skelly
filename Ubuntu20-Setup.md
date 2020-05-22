@@ -16,6 +16,9 @@ Use gnome-tweak to disable animations
 # workspace switching on both monitors 
 gsettings set org.gnome.mutter workspaces-only-on-primary false
 ```
+
+Use dconf Editor to change dash-to-dock click-action to Launch
+
 ### Developer Setup
 
 Grabbed beta channel VSCode for preference sync
